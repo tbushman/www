@@ -33,6 +33,7 @@ const ensureBlogDocument = async (req, res, next, val) => {
 function ensureBlogData(req, res, next) {
 	Blog.distinct('category', (err, distinct) => {
 		if (err) return next(err);
+		// console.log(distinct)
 		if (!distinct || distinct.length === 0) {
 			
 			return res.redirect('/blog/api/seed')

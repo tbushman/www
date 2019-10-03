@@ -30,10 +30,21 @@ script(type="text/javascript").
 					self.doc = self.data[0];
 				}
 				self.article = self.doc.category
+
+				if (self.doc && self.doc !== '' && window.location.search.split(`?c=`)[1] && window.location.search.split(`?c=`)[1] === self.doc.category) {
+					//- window.location.hash = `#${self.doc.category}`
+					//- window.localStorage.setItem('_uss_hash', `#${self.doc.category}`)
+					self.handleOpenArticle(self.doc.category)
+					if (self.doc.category === 'donate') {
+						var db = document.createElement('script');
+						db.type = 'text/javascript';
+						db.defer = true;
+						db.src = 'https://donorbox.org/install-popup-button.js';
+						var s = document.getElementsByTagName('script')[0];
+						s.parentNode.insertBefore(db, s);
+					}
+				} 
 				var length = self.doc.media.length;
-				if (window.location.href.split('/')[window.location.href.split('/').length - 1] === self.article) {
-					self.handleOpenArticle(self.article)
-				}
 				self.sliderInterval = setInterval(function(){
 					if (self.sliderIndex < (length - 1)){
 						self.sliderIndex++;
@@ -73,6 +84,11 @@ script(type="text/javascript").
 			},
 			handleOpenArticle(article) {
 				var self = this;
+				
+				if (/(blog)/.test(window.location.href)) {
+					return window.location.href = `/?c=${article}`
+				}
+				
 				var isArticleVisible = this.isArticleVisible
 				this.isArticleVisible = !isArticleVisible;
 				this.article = article;
@@ -86,7 +102,16 @@ script(type="text/javascript").
 					var articleTimeout = self.articleTimeout;
 					self.articleTimeout = !articleTimeout
 				}, 350)
-
+				//- console.log(window.location.search.split(`?c=`)[1], window.location.search.split(`?c=`)[1] === article)
+				//- if (window.location.search.split(`?c=`)[1] && window.location.search.split(`?c=`)[1] === article) {
+				//- 	//- window.location.hash = `#${article}`
+				//- 	window.localStorage.setItem('_uss_hash', `#${article}`)
+				//- } else if (window.location.hash === `#${article}`) {
+				//- 
+				//- } else {
+				//- 	window.location.hash = `#${article}`
+				//- 	window.localStorage.setItem('_uss_hash', `#${article}`)
+				//- }
 			},
 
 			handleCloseArticle() {
@@ -104,8 +129,9 @@ script(type="text/javascript").
 					this.isArticleVisible = !isArticleVisible;
 					this.article = '';
 				}, 350)
-				
-				window.location.href = '/'
+				//- window.location.search = ''
+				//- window.location.hash = ''
+				//- window.localStorage.setItem('_uss_hash', '')
 			},
 
 			handleClickOutside(event) {

@@ -128,31 +128,69 @@ app.use((request, response, next) => {
 });
 
 app.get('/', ensureBlogData, (req, res, next) => {
-	return res.render('main', {
-		data: req.featuredblogs
-	})
+	var query = req.query;
+	console.log(req.query, req.query.c)
+	if (!req.query || !req.query.c) {
+		return res.render('main', {
+			data: req.featuredblogs,
+			user: req.user,
+			doc: req.featuredblogs[req.featuredblogs.length - 1]
+		})
+	} else {
+		Blog.find({category: req.query.c}).lean().exec((err, data) => {
+			if (err) {
+				return next(err)
+			}
+			if (data.length === 0) {
+				return res.redirect('/blog/api/seed')
+			} else {
+				return res.render('main', {
+					data: data,
+					doc: data[data.length - 1],
+					user: req.user
+				})
+			}
+		})
+	}
 });
 
-app.param('category', (req, res, next, value) => {
-	console.log('param')
-	console.log(value)
-	if (['login', 'register', 'auth', 'loggedin', 'logout'].indexOf(value) !== -1) {
-		return next('route')
-	}
-	Blog.findOne({category: value}).lean().exec((err, doc) => {
-		if (err) {
-			return next('route')
-		} else {
-			if (!doc) {
-				return next('route')
-			} else {
-				return next()
-			}
-		}
-	})
-})
-app.get('/:category', (req, res, next) => {
-	Blog.find({category: req.params.category}).lean().exec((err, data) => {
+// app.param('category', (req, res, next, value) => {
+// 	console.log('param')
+// 	console.log(value)
+// 	if (['login', 'register', 'auth', 'loggedin', 'logout'].indexOf(value) !== -1) {
+// 		return next('route')
+// 	}
+// 	Blog.findOne({category: value}).lean().exec((err, doc) => {
+// 		if (err) {
+// 			return next('route')
+// 		} else {
+// 			if (!doc) {
+// 				return next('route')
+// 			} else {
+// 				return next()
+// 			}
+// 		}
+// 	})
+// })
+// app.get('/:category', (req, res, next) => {
+// 	Blog.find({category: req.params.category}).lean().exec((err, data) => {
+// 		if (err) {
+// 			return next(err)
+// 		}
+// 		if (data.length === 0) {
+// 			return res.redirect('/blog/api/seed')
+// 		} else {
+// 			return res.render('main', {
+// 				data: data,
+// 				doc: data[data.length - 1],
+// 				user: req.user
+// 			})
+// 		}
+// 	})
+// })
+
+app.get('/blog', ensureBlogData, (req, res, next) => {
+	Blog.find({category: 'blog'}).lean().exec((err, data) => {
 		if (err) {
 			return next(err)
 		}
